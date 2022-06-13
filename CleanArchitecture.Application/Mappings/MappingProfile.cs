@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
+using CleanArchitecture.Application.Features.Actors.Queries.Vms;
 using CleanArchitecture.Application.Features.Directors.Commands.CreateDirector;
+using CleanArchitecture.Application.Features.Directors.Queries.Vms;
 using CleanArchitecture.Application.Features.Streamers.Commands.CreateStreamer;
 using CleanArchitecture.Application.Features.Streamers.Commands.UpdateStreamer;
+using CleanArchitecture.Application.Features.Streamers.Queries.Vms;
 using CleanArchitecture.Application.Features.Videos.Queries.GetVideosList;
+using CleanArchitecture.Application.Features.Videos.Queries.Vms;
 using CleanArchitecture.Domain;
 
 namespace CleanArchitecture.Application.Mappings
@@ -12,6 +16,15 @@ namespace CleanArchitecture.Application.Mappings
         public MappingProfile()
         {
             CreateMap<Video, VideosVm>();
+            CreateMap<Video, VideosWithIncludesVm>();
+            CreateMap<Video, VideosWithIncludesVm>()
+                .ForMember(p => p.DirectorNombreCompleto, x => x.MapFrom(a => a.Director!.NombreCompleto))
+                .ForMember(p => p.StreamerNombre, x => x.MapFrom(a => a.Streamer!.Nombre))
+                .ForMember(p => p.Actors, x => x.MapFrom(a => a.Actores));
+
+            CreateMap<Actor, ActorVm>();
+            CreateMap<Director, DirectorVm>();
+            CreateMap<Streamer, StreamersVm>();
             CreateMap<CreateStreamerCommand, Streamer>();
             CreateMap<UpdateStreamerCommand, Streamer>();
             CreateMap<CreateDirectorCommand, Director>();

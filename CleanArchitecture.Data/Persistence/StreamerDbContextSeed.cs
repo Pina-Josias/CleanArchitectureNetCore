@@ -6,10 +6,11 @@ namespace CleanArchitecture.Infraestructure.Persistence
 {
     public class StreamerDbContextSeed
     {
-        public static async Task SeedAsync(StreamerDbContext context, ILogger<StreamerDbContextSeed> logger)
+        public static async Task SeedAsync(StreamerDbContext context, ILoggerFactory loggerFactory)
         {
             if (!context.Streamers!.Any())
             {
+                var logger = loggerFactory.CreateLogger<StreamerDbContextSeed>();
                 context.Streamers!.AddRange(GetPreconfiguredStreamer());
                 await context.SaveChangesAsync();
                 logger.LogInformation("Inserting new Default Streamers {context}", typeof(StreamerDbContext).Name);

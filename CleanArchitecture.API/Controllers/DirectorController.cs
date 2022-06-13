@@ -1,4 +1,7 @@
 ﻿using CleanArchitecture.Application.Features.Directors.Commands.CreateDirector;
+using CleanArchitecture.Application.Features.Directors.Queries.PaginationDirector;
+using CleanArchitecture.Application.Features.Directors.Queries.Vms;
+using CleanArchitecture.Application.Features.Shared.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,18 +21,12 @@ namespace CleanArchitecture.API.Controllers
             _mediator = mediator;
         }
 
-        // GET: api/<DirectorController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        [HttpGet("pagination", Name = "PaginationDirector")]
+        [ProducesResponseType(typeof(PaginationVm<DirectorVm>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<PaginationVm<DirectorVm>>> GetPaginationDirector([FromQuery] PaginationDirectorsQuery paginationDirectorsQuery)
         {
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET api/<DirectorController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
+            var paginationDirector = await _mediator.Send(paginationDirectorsQuery);
+            return Ok(paginationDirector);
         }
 
         // POST api/<DirectorController>
@@ -40,18 +37,6 @@ namespace CleanArchitecture.API.Controllers
         public async Task<ActionResult<int>> CreateDirector([FromBody] CreateDirectorCommand command)
         {
             return await _mediator.Send(command);
-        }
-
-        // PUT api/<DirectorController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<DirectorController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

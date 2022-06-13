@@ -1,4 +1,5 @@
-﻿using CleanArchitecture.Domain.Common;
+﻿using CleanArchitecture.Application.Specifications;
+using CleanArchitecture.Domain.Common;
 using System.Linq.Expressions;
 
 namespace CleanArchitecture.Application.Contracts.Persistence
@@ -14,7 +15,7 @@ namespace CleanArchitecture.Application.Contracts.Persistence
             );
         Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>>? predicate = null,
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
-            List<Expression<Func<T, bool>>>? includes = null,
+            List<Expression<Func<T, object>>>? includes = null,
             bool disableTracking = true
             );
         Task<T?> GetByIdAsync(int id);
@@ -25,5 +26,9 @@ namespace CleanArchitecture.Application.Contracts.Persistence
         void AddEntity(T Entity);
         void UpdateEntity(T Entity);
         void DeleteEntity(T Entity);
+
+        Task<T> GetByIdWithSpecification(ISpecification<T> specification);
+        Task<IReadOnlyList<T>> GetAllWithSpecification(ISpecification<T> specification);
+        Task<int> CountAsync(ISpecification<T> specification);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CleanArchitecture.Domain.Common;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CleanArchitecture.Domain
 {
@@ -11,7 +12,10 @@ namespace CleanArchitecture.Domain
 
         public string? Nombre { get; set; }
         public string? Apellido { get; set; }
+        [NotMapped]
+        public string? NombreCompleto => $"{Nombre} {Apellido}";
 
         public virtual ICollection<Video> Videos { get; set; }
+        public virtual ICollection<VideoActor> VideoActors { get; set; }
     }
 }

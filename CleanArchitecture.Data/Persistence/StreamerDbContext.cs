@@ -51,12 +51,31 @@ namespace CleanArchitecture.Infraestructure.Persistence
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Director>()
+                .HasMany(v => v.Videos)
+                .WithOne(d => d.Director)
+                .HasForeignKey(d => d.DirectorId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Video>()
-                .HasMany(p => p.Actores)
-                .WithMany(t => t.Videos)
+                .HasMany(a => a.Actores)
+                .WithMany(b => b.Videos)
                 .UsingEntity<VideoActor>(
-                    pt => pt.HasKey(e => new { e.ActorId, e.VideoId })
+                    j => j
+                        .HasOne(p => p.Actor)
+                        .WithMany(p => p.VideoActors)
+                        .HasForeignKey(p => p.ActorId),
+                    j => j
+                        .HasOne(p => p.Video)
+                        .WithMany(p => p.VideoActors)
+                        .HasForeignKey(p => p.VideoId),
+                    j =>
+                    {
+                        j.HasKey(t => new { t.ActorId, t.VideoId });
+                    }
                 );
+            modelBuilder.Entity<VideoActor>().Ignore(x => x.Id);
         }
 
         public DbSet<Streamer>? Streamers { get; set; }

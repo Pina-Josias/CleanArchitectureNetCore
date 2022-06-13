@@ -1,7 +1,9 @@
 ﻿
 using CleanArchitecture.Application.Contracts.Persistence;
+using CleanArchitecture.Application.Specifications;
 using CleanArchitecture.Domain.Common;
 using CleanArchitecture.Infraestructure.Persistence;
+using CleanArchitecture.Infraestructure.Specification;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -28,6 +30,11 @@ namespace CleanArchitecture.Infraestructure.Repositories
             _context.Set<T>().Add(Entity);
         }
 
+        public async Task<int> CountAsync(ISpecification<T> specification)
+        {
+            return await ApplySpecification(specification).CountAsync();
+        }
+
         public async Task DeleteAsync(T Entity)
         {
             _context.Set<T>().Remove(Entity);
@@ -43,6 +50,11 @@ namespace CleanArchitecture.Infraestructure.Repositories
         {
             return await _context.Set<T>().ToListAsync();
 
+        }
+
+        public async Task<IReadOnlyList<T>> GetAllWithSpecification(ISpecification<T> specification)
+        {
+            return await ApplySpecification(specification).ToListAsync();
         }
 
         public async Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate)
@@ -63,7 +75,13 @@ namespace CleanArchitecture.Infraestructure.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, List<Expression<Func<T, bool>>>? includes = null, bool disableTracking = true)
+        public async Task<IReadOnlyList<T>> GetAsync
+        (
+            Expression<Func<T, bool>>? predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+            List<Expression<Func<T, object>>>? includes = null,
+            bool disableTracking = true
+        )
         {
             IQueryable<T> query = _context.Set<T>();
             if (disableTracking) query = query.AsNoTracking();
@@ -80,6 +98,11 @@ namespace CleanArchitecture.Infraestructure.Repositories
             return await _context.Set<T>().FindAsync(id);
         }
 
+        public async Task<T> GetByIdWithSpecification(ISpecification<T> specification)
+        {
+            return await ApplySpecification(specification).FirstOrDefaultAsync();
+        }
+
         public async Task<T> UpdateAsync(T Entity)
         {
             _context.Entry(Entity).State = EntityState.Modified;
@@ -91,6 +114,11 @@ namespace CleanArchitecture.Infraestructure.Repositories
         {
             _context.Set<T>().Attach(Entity);
             _context.Entry(Entity).State = EntityState.Modified;
+        }
+
+        public IQueryable<T> ApplySpecification(ISpecification<T> specification)
+        {
+            return SpecificationEvaluator<T>.GetQuery(_context.Set<T>().AsQueryable(), specification);
         }
     }
 }
